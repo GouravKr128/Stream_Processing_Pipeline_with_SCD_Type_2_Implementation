@@ -1,1 +1,1 @@
-## Real Time Stream Processing Pipeline
+## Stream Processing Pipeline with SCD Type 2 Implementation
