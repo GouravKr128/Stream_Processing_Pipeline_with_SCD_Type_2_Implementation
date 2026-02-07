@@ -27,11 +27,11 @@ json_df = raw_df.selectExpr("CAST(value AS STRING) as raw_json")
 
 # ADLS configuration 
 spark.conf.set(
-  "fs.azure.account.key.1adls.dfs.core.windows.net",
+  "fs.azure.account.key.2adls.dfs.core.windows.net",
   "<<Access_key>>"
 )
 
-bronze_path = "abfss://bronze@1adls.core.windows.net/"
+bronze_path = "abfss://bronze@2adls.core.windows.net/"
 
 # Write stream to bronze
 (

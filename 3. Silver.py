@@ -3,12 +3,12 @@ from pyspark.sql.functions import *
 
 #ADLS configuration 
 spark.conf.set(
-  "fs.azure.account.key.1adls.dfs.core.windows.net",
+  "fs.azure.account.key.2adls.dfs.core.windows.net",
   "<<Access_key>>"
 )
 
-bronze_path = "abfss://bronze@1adls.core.windows.net/"
-silver_path = "abfss://silver@1adls.core.windows.net/"
+bronze_path = "abfss://bronze@2adls.core.windows.net/"
+silver_path = "abfss://silver@2adls.core.windows.net/"
 
 #read from bronze
 bronze_df = (
