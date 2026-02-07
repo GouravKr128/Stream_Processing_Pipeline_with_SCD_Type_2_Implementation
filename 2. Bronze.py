@@ -1,9 +1,9 @@
 from pyspark.sql.functions import *
 
 # Azure Event Hub Configuration
-event_hub_namespace = "<<Namespace_hostname>>"
-event_hub_name="<<Eventhub_Name>>"  
-event_hub_conn_str = "<<Connection_string>>"
+event_hub_namespace = "event-hospital.servicebus.windows.net"
+event_hub_name="hospital_namespace"  
+event_hub_conn_str = dbutils.secrets.get(scope="H_scope",key="eventhub-conn-string")
 
 
 kafka_options = {
@@ -28,7 +28,7 @@ json_df = raw_df.selectExpr("CAST(value AS STRING) as raw_json")
 # ADLS configuration 
 spark.conf.set(
   "fs.azure.account.key.2adls.dfs.core.windows.net",
-  "<<Access_key>>"
+  dbutils.secrets.get(scope="H_scope",key="access-key")
 )
 
 bronze_path = "abfss://bronze@2adls.core.windows.net/"

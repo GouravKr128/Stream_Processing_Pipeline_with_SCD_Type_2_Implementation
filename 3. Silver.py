@@ -4,7 +4,7 @@ from pyspark.sql.functions import *
 #ADLS configuration 
 spark.conf.set(
   "fs.azure.account.key.2adls.dfs.core.windows.net",
-  "<<Access_key>>"
+  dbutils.secrets.get(scope="H_scope",key="access-key")
 )
 
 bronze_path = "abfss://bronze@2adls.core.windows.net/"
