@@ -31,7 +31,7 @@ spark.conf.set(
   dbutils.secrets.get(scope="H_scope",key="access-key")
 )
 
-bronze_path = "abfss://bronze@2adls.core.windows.net/"
+bronze_path = "abfss://bronze@2adls.dfs.core.windows.net/"
 
 # Write stream to bronze
 (
