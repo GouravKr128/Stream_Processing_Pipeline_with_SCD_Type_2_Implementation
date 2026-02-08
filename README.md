@@ -2,7 +2,8 @@
 <br>
 
 ### **Overview**
-This project demonstrates an end-to-end real-time data engineering pipeline designed to capture, process, and store streaming data while maintaining historical accuracy. By implementing Slowly Changing Dimensions (SCD) Type 2, the pipeline ensures that changes in source data are tracked over time in the Data Warehouse, allowing for accurate "point-in-time" reporting and longitudinal analysis.
+   - This project implements a robust, end-to-end data engineering pipeline for hospital admission data. It captures real-time patient events, cleanses "dirty" data, and maintains a historical record of patient attributes using Slowly Changing Dimensions (SCD) Type 2.
+   - The architecture follows the Medallion Design Pattern, ensuring data progresses from raw events to high-quality, analytics-ready tables in a Star Schema.
 
 ### **Tech Stack**
 Spark Structured Streaming, Kafka, Azure Event Hubs, Azure Synapse Analytics, Faker, PySpark, Azure Databricks, ADLS Gen2, Key Vault.
