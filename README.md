@@ -13,6 +13,7 @@ Spark Structured Streaming, Kafka, Azure Event Hubs, Azure Synapse Analytics, Fa
 1. Data Generation
    - Streaming data is generated programmatically using a custom Python producer.
    - The python producer utilizes Faker library to generate hospital admission record like patient IDs, departments (ICU, Oncology, etc.), admission/discharge timestamps etc.
+   - The simulator intentionally injects "dirty data" (roughly 5% of records) like invalid ages, invalid admission timestamps to test the pipeline's robustness
    - These events are streamed to Azure Event Hubs using the Kafka protocol.
 
 2. Data Ingestion (Bronze Layer)
@@ -25,11 +26,11 @@ Spark Structured Streaming, Kafka, Azure Event Hubs, Azure Synapse Analytics, Fa
    - Auditability: An ingestion_time column is appended to every record for tracking and downstream watermarking.
 
 4. Data Modelling & Warehousing (Gold Layer)
-   - Used watermarking mechanism to read only new records from silver layer since the last successful execution.
-   - Implemented SCD Type 2 to track historical changes in patient demographics. Used a Hash-based comparison (SHA-256) to detect changes in dimension tables.
+   - Incremental Processing - Used watermarking mechanism to read only new records from silver layer since the last successful execution.
+   - SCD Type 2 - Implemented SCD Type 2 to track historical changes in patient demographics. Used a Hash-based comparison (SHA-256) to detect changes in dimension tables.
    - Transforms the cleaned data into a Star Schema designed for BI and reporting.
    - Star Schema Design:
         - Dim_Patient: Historical tracking of patient details.
         - Dim_Department: Deduplicated list of hospital departments.
         - Fact_Tbl: High-performance table capturing metrics like length_of_stay_hours and is_currently_admitted status.
-   - Azure Synapse Analytics: External tables are created in Synapse to provide a SQL interface over the Delta Lake, allowing analysts to query the Gold layer using SQL.
+   - Warehousing - External tables are created in Azure Synapse to provide a SQL interface over the Delta Lake, allowing analysts to query the Gold layer using SQL.
