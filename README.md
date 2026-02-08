@@ -25,8 +25,9 @@ Spark Structured Streaming, Kafka, Azure Event Hubs, Azure Synapse Analytics, Fa
    - Auditability: An ingestion_time column is appended to every record for tracking and downstream watermarking.
 
 4. Data Modelling & Warehousing (Gold Layer)
-   - The final stage transforms the cleaned data into a Star Schema designed for BI and reporting.
-   - Implemented SCD Type 2 : Used a Hash-based comparison (SHA-256) to detect changes in dimension tables.
+   - Used watermarking mechanism to read only new records from silver layer since the last successful execution.
+   - Implemented SCD Type 2 to track historical changes in patient demographics. Used a Hash-based comparison (SHA-256) to detect changes in dimension tables.
+   - Transforms the cleaned data into a Star Schema designed for BI and reporting.
    - Star Schema Design:
         - Dim_Patient: Historical tracking of patient details.
         - Dim_Department: Deduplicated list of hospital departments.
