@@ -2,7 +2,8 @@
 <br>
 
 ### **Overview**
-   - This project implements a robust, end-to-end data engineering pipeline for hospital admission data. It captures real-time patient events, cleanses "dirty" data, and maintains a historical record of patient attributes using Slowly Changing Dimensions (SCD) Type 2.
+   - This project implements a real-time streaming pipeline that ingests high-velocity hospital admission data via Azure Event Hubs and processes it using Spark Structured Streaming on Databricks.
+   - It captures real-time patient events, cleanses "dirty" data, and maintains a historical record of patient attributes using Slowly Changing Dimensions (SCD) Type 2.
    - The architecture follows the Medallion Design Pattern, ensuring data progresses from raw events to high-quality, analytics-ready tables in a Star Schema.
 
 ### **Tech Stack**
@@ -10,19 +11,24 @@ Spark Structured Streaming, Kafka, Azure Event Hubs, Azure Synapse Analytics, Fa
 
 ### **Description**
 1. Data Generation
-   - To simulate a production environment, a custom Python script utilizes the Faker library to generate synthetic transactional data and user profiles. This generator produces a continuous stream of JSON-formatted events, simulating real-world scenarios such as user attribute updates (e.g., address changes or subscription tier shifts) which necessitate SCD Type 2 logic.
+   - Streaming data is generated programmatically using a custom Python producer.
+   - The python producer utilizes Faker library to generate hospital admission record like patient IDs, departments (ICU, Oncology, etc.), admission/discharge timestamps etc.
+   - These events are streamed to Azure Event Hubs using the Kafka protocol.
 
-2. Data Ingestion
-   - The generated data is produced to Apache Kafka, which serves as the distributed messaging backbone. These streams are integrated with Azure Event Hubs (utilizing the Kafka surface), providing a scalable, managed entry point for the cloud ecosystem. Azure Databricks then consumes these streams in real-time using Spark Structured Streaming, ensuring low-latency ingestion into the landing zone.
+2. Data Ingestion (Bronze Layer)
+   - The ingestion engine uses Spark Structured Streaming to consume raw JSON byte payloads from Event Hubs.
+   - Data is stored in its rawest form in Delta file format.
 
-3. Transformation
-The transformation layer is where the core logic resides. Using Spark, the pipeline performs:
-  - Schema Enforcement: Ensuring incoming JSON data matches the expected structure.
-  - Stateful Processing: Implementing the SCD Type 2 logic by comparing incoming records with existing records in the Silver/Gold layers.
-  - Version Control: Automatically retiring old records (setting end_date and is_current = False) and inserting new records (setting start_date and is_current = True) when a change is detected in tracked attributes.
+3. Transformation (Silver Layer)
+   - In the Silver layer, the raw JSON is parsed into a structured schema and undergoes data cleaning(Invalid age/admission time are replaced with realistic values)
+   - Schema Evolution: The pipeline is configured with .option("mergeSchema", "true") to handle potential upstream changes gracefully.
+   - Auditability: An ingestion_time column is appended to every record for tracking and downstream watermarking.
 
-4. Data Modelling & Warehousing
-The processed data is organized into a Star Schema to optimize for analytical queries:
-  - Fact Tables: Store high-volume transactional events.
-  - Dimension Tables: Store descriptive attributes, maintained via the SCD Type 2 process.
-The final, modeled data is surfaced in Azure Synapse Analytics. By utilizing Synapse as the Data Warehouse, the project enables high-performance BI reporting and complex analytical workloads across the historical dataset.
+4. Data Modelling & Warehousing (Gold Layer)
+   - The final stage transforms the cleaned data into a Star Schema designed for BI and reporting.
+   - Implemented SCD Type 2 : Used a Hash-based comparison (SHA-256) to detect changes in dimension tables.
+   - Star Schema Design:
+        - Dim_Patient: Historical tracking of patient details.
+        - Dim_Department: Deduplicated list of hospital departments.
+        - Fact_Tbl: High-performance table capturing metrics like length_of_stay_hours and is_currently_admitted status.
+   - Azure Synapse Analytics: External tables are created in Synapse to provide a SQL interface over the Delta Lake, allowing analysts to query the Gold layer using SQL.
